@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>mylisp</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Ast.fs" />
+    <Compile Include="Environment.fs" />
+    <Compile Include="Primitives.fs" />
+    <Compile Include="Parser.fs" />
+    <Compile Include="Eval.fs" />
+    <Compile Include="Examples.fs" />
+    <Compile Include="REPL.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" Version="6.0.7" />
+  </ItemGroup>
+
+</Project>
