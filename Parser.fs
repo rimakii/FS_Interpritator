@@ -34,17 +34,21 @@ let tokenize (input: string) =
     |> List.filter (fun s -> s <> "")
 
 let rec parseExpr = function
-    | "("::rest -> parseList [] rest
+    | "("::rest -> 
+        let list, remaining = parseList [] rest
+        list, remaining
     | ")"::_ -> failwith "Unexpected )"
     | token::rest -> parseAtom token, rest
     | [] -> failwith "Unexpected EOF"
 
 and parseList acc = function
-    | ")"::rest -> List(List.rev acc), rest
+    | ")"::rest -> 
+        if List.isEmpty acc then List [], rest
+        else List(List.rev acc), rest
     | [] -> failwith "Unclosed list"
     | tokens ->
-        let expr, rest = parseExpr tokens
-        parseList (expr::acc) rest
+        let expr, remaining = parseExpr tokens
+        parseList (expr::acc) remaining
 
 and parseAtom = function
     | "true" -> Bool true

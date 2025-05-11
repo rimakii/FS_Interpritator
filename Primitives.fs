@@ -19,24 +19,26 @@ let equal args =
     | [Bool x; Bool y] -> Bool (x = y)
     | [String x; String y] -> Bool (x = y)
     | [List []; List []] -> Bool true
-    | [List _; List _] -> Bool false  // Simple list comparison - doesn't recurse
+    | [List _; List _] -> Bool false
     | [Atom x; Atom y] -> Bool (x = y)
-    | _ -> Bool false  // Different types or complex values are not equal
+    | _ -> Bool false
 
 let listPrimitives = [
     ("car", PrimitiveFunc(fun args ->
         match args with 
         | [List(x::_)] -> x 
-        | _ -> failwith "car: expected non-empty list"))
+        | [List []] -> failwith "car: empty list"
+        | _ -> failwith "car: expected list"))
     
     ("cdr", PrimitiveFunc(fun args ->
         match args with 
         | [List(_::xs)] -> List xs 
-        | _ -> failwith "cdr: expected non-empty list"))
+        | [List []] -> List []
+        | _ -> failwith "cdr: expected list"))
     
     ("cons", PrimitiveFunc(fun args ->
         match args with 
-        | [x; List xs] -> List(x::xs) 
+        | [x; List xs] -> List(x::xs)
         | [x; y] -> List [x; y]
         | _ -> failwith "cons: expected two arguments"))
     
@@ -85,6 +87,12 @@ let primitives = [
         match args with
         | [Bool a] -> Bool(not a)
         | _ -> failwith "not: expected boolean"))
+    ("print", PrimitiveFunc(fun args ->
+        match args with
+        | [x] -> 
+            printfn "%A" x
+            x
+        | _ -> failwith "print: expected one argument"))
 ]
 
 let rec factorial n =
@@ -92,7 +100,7 @@ let rec factorial n =
     else n * factorial (n - 1)
 
 let factorialFunc =
-    ("factorial", PrimitiveFunc(fun args ->
+    ("fact", PrimitiveFunc(fun args ->
         match args with
         | [Number n] when n >= 0 -> Number(factorial n)
         | _ -> failwith "factorial: expected a non-negative integer"))

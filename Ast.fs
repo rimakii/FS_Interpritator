@@ -10,5 +10,7 @@ type LispVal =
     | Lambda of string list * LispVal * Env
     | PrimitiveFunc of (LispVal list -> LispVal)
     | FileHandle of System.IO.FileStream
+    | Lazy of Lazy<LispVal> 
+    | Set of string * LispVal
 
-and Env = Map<string, LispVal ref>  // ???????? Env ?????
+and Env = Map<string, LispVal ref>

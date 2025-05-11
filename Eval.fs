@@ -12,6 +12,8 @@ let rec eval env expr =
         match lookup id env with
         | { contents = v } -> v
 
+    | List [] -> List [] 
+
     | List [Atom "quote"; v] -> v
 
     | List [Atom "if"; cond; tru; fls] -> 
@@ -40,11 +42,24 @@ let rec eval env expr =
     | List (Atom "begin" :: exprs) ->
         evalBody env exprs
 
+    | List [Atom "delay"; expr] -> 
+        Lazy(lazy (eval env expr)) 
+
+    | List [Atom "force"; promise] ->
+        match eval env promise with
+        | Lazy(lazyValue) -> lazyValue.Force()
+        | _ -> failwith "force: expected a promise"
+
+    | List [Atom "set!"; Atom var; expr] ->
+        let value = eval env expr
+        match env.TryFind var with
+        | Some ref -> ref := value; value
+        | None -> failwithf "Unbound variable: %s" var
+
     | List (func::args) ->
         let f = eval env func
-        let argVals = args |> List.map (fun arg -> Lazy.CreateFromValue(eval env arg))
-        apply f (argVals |> List.map (fun l -> l.Value))
-
+        let argVals = args |> List.map (eval env)
+        apply f argVals
 
     | _ -> failwithf "Invalid expression: %A" expr
 
